@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ClientConnector` struct in crate `actix_web`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ClientConnector">
+
+    <title>actix_web::client::ClientConnector - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css" id="themeStyle">
+    <script src="../../storage.js"></script>
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
+        
+        <p class='location'>Struct ClientConnector</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.with_connector">with_connector</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Actor">Actor</a><a href="#impl-Supervised">Supervised</a><a href="#impl-ArbiterService">ArbiterService</a><a href="#impl-Default">Default</a><a href="#impl-Handler%3CConnect%3E">Handler&lt;Connect&gt;</a></div><a class="sidebar-title" href="#synthetic-implementations">Auto Trait Implementations</a><div class="sidebar-links"><a href="#impl-Send">Send</a><a href="#impl-Sync">Sync</a></div></div><p class='location'><a href='../index.html'>actix_web</a>::<wbr><a href='index.html'>client</a></p><script>window.sidebarCurrent = {name: 'ClientConnector', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
+    </nav>
+
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../theme.js"></script>
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>actix_web</a>::<wbr><a href='index.html'>client</a>::<wbr><a class="struct" href=''>ClientConnector</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/actix_web/client/connector.rs.html#99-104' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct ClientConnector { /* fields omitted */ }</pre>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#136-184' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.with_connector' class="method"><span id='with_connector.v' class='invisible'><code>pub fn <a href='#method.with_connector' class='fnname'>with_connector</a>(connector: <a class="struct" href="https://docs.rs/openssl/0.10/openssl/ssl/connector/struct.SslConnector.html" title="struct openssl::ssl::connector::SslConnector">SslConnector</a>) -&gt; <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#181-183' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create <code>ClientConnector</code> actor with custom <code>SslConnector</code> instance.</p>
+<p>By default <code>ClientConnector</code> uses very simple ssl configuration.
+With <code>with_connector</code> method it is possible to use custom <code>SslConnector</code>
+object.</p>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">openssl</span>;
+<span class="kw">use</span> <span class="ident">actix</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">actix_web</span>::<span class="ident">client</span>::{<span class="ident">Connect</span>, <span class="ident">ClientConnector</span>};
+
+<span class="kw">use</span> <span class="ident">openssl</span>::<span class="ident">ssl</span>::{<span class="ident">SslMethod</span>, <span class="ident">SslConnector</span>};
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">sys</span> <span class="op">=</span> <span class="ident">System</span>::<span class="ident">new</span>(<span class="string">&quot;test&quot;</span>);
+
+    <span class="comment">// Start `ClientConnector` with custom `SslConnector`</span>
+    <span class="kw">let</span> <span class="ident">ssl_conn</span> <span class="op">=</span> <span class="ident">SslConnector</span>::<span class="ident">builder</span>(<span class="ident">SslMethod</span>::<span class="ident">tls</span>()).<span class="ident">unwrap</span>().<span class="ident">build</span>();
+    <span class="kw">let</span> <span class="ident">conn</span>: <span class="ident">Address</span><span class="op">&lt;</span>_<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ClientConnector</span>::<span class="ident">with_connector</span>(<span class="ident">ssl_conn</span>).<span class="ident">start</span>();
+
+    <span class="ident">Arbiter</span>::<span class="ident">handle</span>().<span class="ident">spawn</span>({
+        <span class="ident">conn</span>.<span class="ident">send</span>(
+            <span class="ident">Connect</span>::<span class="ident">new</span>(<span class="string">&quot;https://www.rust-lang.org&quot;</span>).<span class="ident">unwrap</span>()) <span class="comment">// &lt;- connect to host</span>
+                .<span class="ident">map_err</span>(<span class="op">|</span>_<span class="op">|</span> ())
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">res</span><span class="op">|</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">stream</span>) <span class="op">=</span> <span class="ident">res</span> {
+                        <span class="ident">stream</span>.<span class="ident">write_all</span>(<span class="string">b&quot;GET / HTTP/1.0\r\n\r\n&quot;</span>).<span class="ident">unwrap</span>();
+                    }
+                    <span class="prelude-val">Ok</span>(())
+                })
+    });
+
+    <span class="ident">sys</span>.<span class="ident">run</span>();
+}</pre>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+            <div id='implementations-list'>
+        <h3 id='impl-Actor' class='impl'><span class='in-band'><code>impl Actor for <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code><a href='#impl-Actor' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#106-108' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Context' class="type"><span id='Context.t' class='invisible'><code>type <a href='#associatedtype.Context' class="type">Context</a> = Context&lt;<a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a>&gt;</code></span></h4>
+<div class='docblock'><p>Actor execution context type</p>
+</div><h4 id='method.started' class="method"><span id='started.v' class='invisible'><code>fn <a href='#method.started' class='fnname'>started</a>(&amp;mut self, ctx: &amp;mut Self::Context)</code></span></h4>
+<div class='docblock'><p>Method is called when actor get polled first time.</p>
+</div><h4 id='method.stopping' class="method"><span id='stopping.v' class='invisible'><code>fn <a href='#method.stopping' class='fnname'>stopping</a>(&amp;mut self, ctx: &amp;mut Self::Context) -&gt; Running</code></span></h4>
+<div class='docblock'><p>Method is called after an actor is in <code>Actor::Stopping</code> state. There could be several reasons for stopping. <code>Context::stop</code> get called by the actor itself. All addresses to current actor get dropped and no more evented objects left in the context. <a href="#method.stopping">Read more</a></p>
+</div><h4 id='method.stopped' class="method"><span id='stopped.v' class='invisible'><code>fn <a href='#method.stopped' class='fnname'>stopped</a>(&amp;mut self, ctx: &amp;mut Self::Context)</code></span></h4>
+<div class='docblock'><p>Method is called after an actor is stopped, it can be used to perform any needed cleanup work or spawning more actors. This is final state, after this call actor get dropped. <a href="#method.stopped">Read more</a></p>
+</div><h4 id='method.start' class="method"><span id='start.v' class='invisible'><code>fn <a href='#method.start' class='fnname'>start</a>&lt;Addr&gt;(self) -&gt; Addr <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: Actor&lt;Context = Context&lt;Self&gt;&gt; + ActorAddress&lt;Self, Addr&gt;,&nbsp;</span></code></span></h4>
+<div class='docblock'><p>Start new asynchronous actor, returns address of newly created actor. <a href="#method.start">Read more</a></p>
+</div><h4 id='method.start_default' class="method"><span id='start_default.v' class='invisible'><code>fn <a href='#method.start_default' class='fnname'>start_default</a>&lt;Addr&gt;() -&gt; Addr <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> + Actor&lt;Context = Context&lt;Self&gt;&gt; + ActorAddress&lt;Self, Addr&gt;,&nbsp;</span></code></span></h4>
+<div class='docblock'><p>Start new asynchronous actor, returns address of newly created actor.</p>
+</div><h4 id='method.create' class="method"><span id='create.v' class='invisible'><code>fn <a href='#method.create' class='fnname'>create</a>&lt;Addr, F&gt;(f: F) -&gt; Addr <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>(&amp;mut Context&lt;Self&gt;) -&gt; Self + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: Actor&lt;Context = Context&lt;Self&gt;&gt; + ActorAddress&lt;Self, Addr&gt;,&nbsp;</span></code></span></h4>
+<div class='docblock'><p>Use <code>create</code> method, if you need <code>Context</code> object during actor initialization. <a href="#method.create">Read more</a></p>
+</div></div><h3 id='impl-Supervised' class='impl'><span class='in-band'><code>impl Supervised for <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code><a href='#impl-Supervised' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#110' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.restarting' class="method"><span id='restarting.v' class='invisible'><code>fn <a href='#method.restarting' class='fnname'>restarting</a>(&amp;mut self, ctx: &amp;mut Self::Context)</code></span></h4>
+<div class='docblock'><p>Method called when supervisor restarting failed actor</p>
+</div></div><h3 id='impl-ArbiterService' class='impl'><span class='in-band'><code>impl ArbiterService for <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code><a href='#impl-ArbiterService' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#112' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.service_started' class="method"><span id='service_started.v' class='invisible'><code>fn <a href='#method.service_started' class='fnname'>service_started</a>(&amp;mut self, ctx: &amp;mut Context&lt;Self&gt;)</code></span></h4>
+<div class='docblock'><p>Method is called during service initialization.</p>
+</div><h4 id='method.from_registry' class="method"><span id='from_registry.v' class='invisible'><code>fn <a href='#method.from_registry' class='fnname'>from_registry</a>() -&gt; Addr&lt;Unsync, Self&gt;</code></span></h4>
+<div class='docblock'><p>Get actor's address from arbiter registry</p>
+</div></div><h3 id='impl-Default' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code><a href='#impl-Default' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#114-134' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.default' class="method"><span id='default.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#115-133' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the &quot;default value&quot; for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></div><h3 id='impl-Handler%3CConnect%3E' class='impl'><span class='in-band'><code>impl Handler&lt;<a class="struct" href="../../actix_web/client/struct.Connect.html" title="struct actix_web::client::Connect">Connect</a>&gt; for <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code><a href='#impl-Handler%3CConnect%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#186-267' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Result' class="type"><span id='Result.t' class='invisible'><code>type <a href='#associatedtype.Result' class="type">Result</a> = ActorResponse&lt;<a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a>, <a class="struct" href="../../actix_web/client/struct.Connection.html" title="struct actix_web::client::Connection">Connection</a>, <a class="enum" href="../../actix_web/client/enum.ClientConnectorError.html" title="enum actix_web::client::ClientConnectorError">ClientConnectorError</a>&gt;</code></span></h4>
+<div class='docblock'><p>The type of value that this handle will return</p>
+</div><h4 id='method.handle' class="method"><span id='handle.v' class='invisible'><code>fn <a href='#method.handle' class='fnname'>handle</a>(&amp;mut self, msg: <a class="struct" href="../../actix_web/client/struct.Connect.html" title="struct actix_web::client::Connect">Connect</a>, _: &amp;mut Self::Context) -&gt; Self::Result</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/actix_web/client/connector.rs.html#189-266' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Method is called for every message received by this Actor</p>
+</div></div></div>
+            <h2 id='synthetic-implementations' class='small-section-header'>
+              Auto Trait Implementations<a href='#synthetic-implementations' class='anchor'></a>
+            </h2>
+            <div id='synthetic-implementations-list'>
+        <h3 id='impl-Send' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code><a href='#impl-Send' class='anchor'></a></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 id='impl-Sync' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="../../actix_web/client/struct.ClientConnector.html" title="struct actix_web::client::ClientConnector">ClientConnector</a></code><a href='#impl-Sync' class='anchor'></a></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt><kbd>?</kbd></dt>
+                    <dd>Show this help dialog</dd>
+                    <dt><kbd>S</kbd></dt>
+                    <dd>Focus the search field</dd>
+                    <dt><kbd>↑</kbd></dt>
+                    <dd>Move up in search results</dd>
+                    <dt><kbd>↓</kbd></dt>
+                    <dd>Move down in search results</dd>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
+                    <dd>Go to active search result</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "actix_web";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

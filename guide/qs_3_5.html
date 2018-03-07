@@ -1,0 +1,368 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Server - Actix web</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Actix web framework guide">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+    </head>
+    <body class="light">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme;
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            document.querySelector('html').classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li class="affix"><a href="qs_1.html">Quickstart</a></li><li><a href="qs_2.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="qs_3.html"><strong aria-hidden="true">2.</strong> Application</a></li><li><a href="qs_3_5.html" class="active"><strong aria-hidden="true">3.</strong> Server</a></li><li><a href="qs_4.html"><strong aria-hidden="true">4.</strong> Handler</a></li><li><a href="qs_4_5.html"><strong aria-hidden="true">5.</strong> Errors</a></li><li><a href="qs_5.html"><strong aria-hidden="true">6.</strong> URL Dispatch</a></li><li><a href="qs_7.html"><strong aria-hidden="true">7.</strong> Request &amp; Response</a></li><li><a href="qs_8.html"><strong aria-hidden="true">8.</strong> Testing</a></li><li><a href="qs_10.html"><strong aria-hidden="true">9.</strong> Middlewares</a></li><li><a href="qs_12.html"><strong aria-hidden="true">10.</strong> Static file handling</a></li><li><a href="qs_9.html"><strong aria-hidden="true">11.</strong> WebSockets</a></li><li><a href="qs_13.html"><strong aria-hidden="true">12.</strong> HTTP/2</a></li><li><a href="qs_14.html"><strong aria-hidden="true">13.</strong> Database integration</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                        </div>
+
+                        <h1 class="menu-title">Actix web</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="qs_3_5.html#server" id="server"><h1>Server</h1></a>
+<p><a href="../actix_web/struct.HttpServer.html"><em>HttpServer</em></a> type is responsible for
+serving http requests. <em>HttpServer</em> accept application factory as a parameter,
+Application factory must have <code>Send</code> + <code>Sync</code> boundaries. More about that in
+<em>multi-threading</em> section. To bind to specific socket address <code>bind()</code> must be used.
+This method could be called multiple times. To start http server one of the <em>start</em>
+methods could be used. <code>start()</code> method start simple server, <code>start_tls()</code> or <code>start_ssl()</code>
+starts ssl server. <em>HttpServer</em> is an actix actor, it has to be initialized
+within properly configured actix system:</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix;
+# extern crate actix_web;
+use actix::*;
+use actix_web::*;
+
+fn main() {
+    let sys = actix::System::new(&quot;guide&quot;);
+
+    HttpServer::new(
+        || Application::new()
+            .resource(&quot;/&quot;, |r| r.h(httpcodes::HttpOk)))
+        .bind(&quot;127.0.0.1:59080&quot;).unwrap()
+        .start();
+
+#     actix::Arbiter::system().do_send(actix::msgs::SystemExit(0));
+    let _ = sys.run();
+}
+</code></pre></pre>
+<p>It is possible to start server in separate thread with <em>spawn()</em> method. In that
+case server spawns new thread and create new actix system in it. To stop
+this server send <code>StopServer</code> message.</p>
+<p>Http server is implemented as an actix actor. It is possible to communicate with server
+via messaging system. All start methods like <code>start()</code>, <code>start_ssl()</code>, etc returns
+address of the started http server. Actix http server accept several messages:</p>
+<ul>
+<li><code>PauseServer</code> - Pause accepting incoming connections</li>
+<li><code>ResumeServer</code> - Resume accepting incoming connections</li>
+<li><code>StopServer</code> - Stop incoming connection processing, stop all workers and exit</li>
+</ul>
+<pre><pre class="playpen"><code class="language-rust"># extern crate futures;
+# extern crate actix;
+# extern crate actix_web;
+# use futures::Future;
+use actix_web::*;
+use std::thread;
+use std::sync::mpsc;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let sys = actix::System::new(&quot;http-server&quot;);
+        let addr = HttpServer::new(
+            || Application::new()
+                .resource(&quot;/&quot;, |r| r.h(httpcodes::HttpOk)))
+            .bind(&quot;127.0.0.1:0&quot;).expect(&quot;Can not bind to 127.0.0.1:0&quot;)
+            .shutdown_timeout(60)    // &lt;- Set shutdown timeout to 60 seconds
+            .start();
+        let _ = tx.send(addr);
+        let _ = sys.run();
+    });
+
+    let addr = rx.recv().unwrap();
+    let _ = addr.send(
+         server::StopServer{graceful:true}).wait(); // &lt;- Send `StopServer` message to server.
+}
+</code></pre></pre>
+<a class="header" href="qs_3_5.html#multi-threading" id="multi-threading"><h2>Multi-threading</h2></a>
+<p>Http server automatically starts number of http workers, by default
+this number is equal to number of logical cpu in the system. This number
+could be overridden with <code>HttpServer::threads()</code> method.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# extern crate tokio_core;
+use actix_web::*;
+
+fn main() {
+    HttpServer::new(
+        || Application::new()
+            .resource(&quot;/&quot;, |r| r.h(httpcodes::HttpOk)))
+        .threads(4); // &lt;- Start 4 workers
+}
+</code></pre></pre>
+<p>Server create separate application instance for each created worker. Application state
+is not shared between threads, to share state <code>Arc</code> could be used. Application state
+does not need to be <code>Send</code> and <code>Sync</code> but application factory must be <code>Send</code> + <code>Sync</code>.</p>
+<a class="header" href="qs_3_5.html#ssl" id="ssl"><h2>SSL</h2></a>
+<p>There are two <code>tls</code> and <code>alpn</code> features for ssl server. <code>tls</code> feature is for <code>native-tls</code>
+integration and <code>alpn</code> is for <code>openssl</code>.</p>
+<pre><code class="language-toml">[dependencies]
+actix-web = { git = &quot;https://github.com/actix/actix-web&quot;, features=[&quot;alpn&quot;] }
+</code></pre>
+<pre><code class="language-rust ignore">use std::fs::File;
+use actix_web::*;
+
+fn main() {
+    let mut file = File::open(&quot;identity.pfx&quot;).unwrap();
+    let mut pkcs12 = vec![];
+    file.read_to_end(&amp;mut pkcs12).unwrap();
+    let pkcs12 = Pkcs12::from_der(&amp;pkcs12).unwrap().parse(&quot;12345&quot;).unwrap();
+
+    HttpServer::new(
+        || Application::new()
+            .resource(&quot;/index.html&quot;, |r| r.f(index)))
+        .bind(&quot;127.0.0.1:8080&quot;).unwrap()
+        .serve_ssl(pkcs12).unwrap();
+}
+</code></pre>
+<p>Note on <em>HTTP/2.0</em> protocol over tls without prior knowledge, it requires
+<a href="https://tools.ietf.org/html/rfc7301">tls alpn</a>. At the moment only
+<code>openssl</code> has <code>alpn</code> support.</p>
+<p>Please check <a href="https://github.com/actix/actix-web/tree/master/examples/tls">example</a>
+for full example.</p>
+<a class="header" href="qs_3_5.html#keep-alive" id="keep-alive"><h2>Keep-Alive</h2></a>
+<p>Actix can wait for requests on a keep-alive connection. <em>Keep alive</em>
+connection behavior is defined by server settings.</p>
+<ul>
+<li><code>Some(75)</code> - enable 75 sec <em>keep alive</em> timer according request and response settings.</li>
+<li><code>Some(0)</code> - disable <em>keep alive</em>.</li>
+<li><code>None</code> - Use <code>SO_KEEPALIVE</code> socket option.</li>
+</ul>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# extern crate tokio_core;
+use actix_web::*;
+
+fn main() {
+    HttpServer::new(||
+        Application::new()
+            .resource(&quot;/&quot;, |r| r.h(httpcodes::HttpOk)))
+        .keep_alive(None); // &lt;- Use `SO_KEEPALIVE` socket option.
+}
+</code></pre></pre>
+<p>If first option is selected then <em>keep alive</em> state
+calculated based on response's <em>connection-type</em>. By default
+<code>HttpResponse::connection_type</code> is not defined in that case <em>keep alive</em>
+defined by request's http version. Keep alive is off for <em>HTTP/1.0</em>
+and is on for <em>HTTP/1.1</em> and <em>HTTP/2.0</em>.</p>
+<p><em>Connection type</em> could be change with <code>HttpResponseBuilder::connection_type()</code> method.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# use actix_web::httpcodes::*;
+use actix_web::*;
+
+fn index(req: HttpRequest) -&gt; HttpResponse {
+    HttpOk.build()
+        .connection_type(headers::ConnectionType::Close) // &lt;- Close connection
+        .force_close()                                   // &lt;- Alternative method
+        .finish().unwrap()
+}
+# fn main() {}
+</code></pre></pre>
+<a class="header" href="qs_3_5.html#graceful-shutdown" id="graceful-shutdown"><h2>Graceful shutdown</h2></a>
+<p>Actix http server support graceful shutdown. After receiving a stop signal, workers
+have specific amount of time to finish serving requests. Workers still alive after the
+timeout are force dropped. By default shutdown timeout sets to 30 seconds.
+You can change this parameter with <code>HttpServer::shutdown_timeout()</code> method.</p>
+<p>You can send stop message to server with server address and specify if you what
+graceful shutdown or not. <code>start()</code> methods return address of the server.</p>
+<p>Http server handles several OS signals. <em>CTRL-C</em> is available on all OSs,
+other signals are available on unix systems.</p>
+<ul>
+<li><em>SIGINT</em> - Force shutdown workers</li>
+<li><em>SIGTERM</em> - Graceful shutdown workers</li>
+<li><em>SIGQUIT</em> - Force shutdown workers</li>
+</ul>
+<p>It is possible to disable signals handling with <code>HttpServer::disable_signals()</code> method.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="qs_3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="qs_4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="qs_3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="qs_4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if (getComputedStyle(document.querySelector(".fa")).fontFamily !== "FontAwesome") {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = '_FontAwesome/css/font-awesome.css';
+                document.head.insertBefore(link, document.head.firstChild)
+            }
+        </script>
+
+        
+
+        
+        <!-- Google Analytics Tag -->
+        <script>
+            var localAddrs = ["localhost", "127.0.0.1", ""];
+
+            // make sure we don't activate google analytics if the developer is
+            // inspecting the book locally...
+            if (localAddrs.indexOf(document.location.hostname) === -1) {
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+                ga('create', 'UA-110322332-1', 'auto');
+                ga('send', 'pageview');
+            }
+        </script>
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

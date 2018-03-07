@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["FilesystemElement","This enum represents all filesystem elements."]],"struct":[["Directory","A directory; responds with the generated directory listing."],["NamedFile","A file with an associated name; responds with the Content-Type based on the file extension."],["StaticFiles","Static files handling"]]});

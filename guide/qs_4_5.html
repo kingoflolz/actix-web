@@ -1,0 +1,333 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Errors - Actix web</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Actix web framework guide">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+    </head>
+    <body class="light">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme;
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            document.querySelector('html').classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li class="affix"><a href="qs_1.html">Quickstart</a></li><li><a href="qs_2.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="qs_3.html"><strong aria-hidden="true">2.</strong> Application</a></li><li><a href="qs_3_5.html"><strong aria-hidden="true">3.</strong> Server</a></li><li><a href="qs_4.html"><strong aria-hidden="true">4.</strong> Handler</a></li><li><a href="qs_4_5.html" class="active"><strong aria-hidden="true">5.</strong> Errors</a></li><li><a href="qs_5.html"><strong aria-hidden="true">6.</strong> URL Dispatch</a></li><li><a href="qs_7.html"><strong aria-hidden="true">7.</strong> Request &amp; Response</a></li><li><a href="qs_8.html"><strong aria-hidden="true">8.</strong> Testing</a></li><li><a href="qs_10.html"><strong aria-hidden="true">9.</strong> Middlewares</a></li><li><a href="qs_12.html"><strong aria-hidden="true">10.</strong> Static file handling</a></li><li><a href="qs_9.html"><strong aria-hidden="true">11.</strong> WebSockets</a></li><li><a href="qs_13.html"><strong aria-hidden="true">12.</strong> HTTP/2</a></li><li><a href="qs_14.html"><strong aria-hidden="true">13.</strong> Database integration</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                        </div>
+
+                        <h1 class="menu-title">Actix web</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="qs_4_5.html#errors" id="errors"><h1>Errors</h1></a>
+<p>Actix uses <a href="../actix_web/error/struct.Error.html"><code>Error</code> type</a>
+and <a href="../actix_web/error/trait.ResponseError.html"><code>ResponseError</code> trait</a>
+for handling handler's errors.
+Any error that implements <code>ResponseError</code> trait can be returned as error value.
+<em>Handler</em> can return <em>Result</em> object, actix by default provides
+<code>Responder</code> implementation for compatible result object. Here is implementation
+definition:</p>
+<pre><code class="language-rust ignore">impl&lt;T: Responder, E: Into&lt;Error&gt;&gt; Responder for Result&lt;T, E&gt;
+</code></pre>
+<p>And any error that implements <code>ResponseError</code> can be converted into <code>Error</code> object.
+For example if <em>handler</em> function returns <code>io::Error</code>, it would be converted
+into <code>HttpInternalServerError</code> response. Implementation for <code>io::Error</code> is provided
+by default.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# use actix_web::*;
+use std::io;
+
+fn index(req: HttpRequest) -&gt; io::Result&lt;fs::NamedFile&gt; {
+    Ok(fs::NamedFile::open(&quot;static/index.html&quot;)?)
+}
+#
+# fn main() {
+#     Application::new()
+#         .resource(r&quot;/a/index.html&quot;, |r| r.f(index))
+#         .finish();
+# }
+</code></pre></pre>
+<a class="header" href="qs_4_5.html#custom-error-response" id="custom-error-response"><h2>Custom error response</h2></a>
+<p>To add support for custom errors, all we need to do is just implement <code>ResponseError</code> trait
+for custom error. <code>ResponseError</code> trait has default implementation
+for <code>error_response()</code> method, it generates <em>500</em> response.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+#[macro_use] extern crate failure;
+use actix_web::*;
+
+#[derive(Fail, Debug)]
+#[fail(display=&quot;my error&quot;)]
+struct MyError {
+   name: &amp;'static str
+}
+
+/// Use default implementation for `error_response()` method
+impl error::ResponseError for MyError {}
+
+fn index(req: HttpRequest) -&gt; Result&lt;&amp;'static str, MyError&gt; {
+    Err(MyError{name: &quot;test&quot;})
+}
+#
+# fn main() {
+#     Application::new()
+#         .resource(r&quot;/a/index.html&quot;, |r| r.f(index))
+#         .finish();
+# }
+</code></pre></pre>
+<p>In this example <em>index</em> handler will always return <em>500</em> response. But it is easy
+to return different responses for different type of errors.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+#[macro_use] extern crate failure;
+use actix_web::*;
+
+#[derive(Fail, Debug)]
+enum MyError {
+   #[fail(display=&quot;internal error&quot;)]
+   InternalError,
+   #[fail(display=&quot;bad request&quot;)]
+   BadClientData,
+   #[fail(display=&quot;timeout&quot;)]
+   Timeout,
+}
+
+impl error::ResponseError for MyError {
+    fn error_response(&amp;self) -&gt; HttpResponse {
+       match *self {
+          MyError::InternalError =&gt; HttpResponse::new(
+              StatusCode::INTERNAL_SERVER_ERROR, Body::Empty),
+          MyError::BadClientData =&gt; HttpResponse::new(
+              StatusCode::BAD_REQUEST, Body::Empty),
+          MyError::Timeout =&gt; HttpResponse::new(
+              StatusCode::GATEWAY_TIMEOUT, Body::Empty),
+       }
+    }
+}
+
+fn index(req: HttpRequest) -&gt; Result&lt;&amp;'static str, MyError&gt; {
+    Err(MyError::BadClientData)
+}
+#
+# fn main() {
+#     Application::new()
+#         .resource(r&quot;/a/index.html&quot;, |r| r.f(index))
+#         .finish();
+# }
+</code></pre></pre>
+<a class="header" href="qs_4_5.html#error-helpers" id="error-helpers"><h2>Error helpers</h2></a>
+<p>Actix provides set of error helper types. It is possible to use them to generate
+specific error response. We can use helper types for first example with custom error.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+#[macro_use] extern crate failure;
+use actix_web::*;
+
+#[derive(Debug)]
+struct MyError {
+   name: &amp;'static str
+}
+
+fn index(req: HttpRequest) -&gt; Result&lt;&amp;'static str&gt; {
+    let result: Result&lt;&amp;'static str, MyError&gt; = Err(MyError{name: &quot;test&quot;});
+    
+    Ok(result.map_err(error::ErrorBadRequest)?)
+}
+# fn main() {
+#     Application::new()
+#         .resource(r&quot;/a/index.html&quot;, |r| r.f(index))
+#         .finish();
+# }
+</code></pre></pre>
+<p>In this example <em>BAD REQUEST</em> response get generated for <code>MyError</code> error.</p>
+<a class="header" href="qs_4_5.html#error-logging" id="error-logging"><h2>Error logging</h2></a>
+<p>Actix logs all errors with <code>WARN</code> log level. If log level set to <code>DEBUG</code>
+and <code>RUST_BACKTRACE</code> is enabled, backtrace get logged. The Error type uses
+cause's error backtrace if available, if the underlying failure does not provide
+a backtrace, a new backtrace is constructed pointing to that conversion point
+(rather than the origin of the error). This construction only happens if there
+is no underlying backtrace; if it does have a backtrace no new backtrace is constructed.</p>
+<p>You can enable backtrace and debug logging with following command:</p>
+<pre><code>&gt;&gt; RUST_BACKTRACE=1 RUST_LOG=actix_web=debug cargo run
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="qs_4.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="qs_5.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="qs_4.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="qs_5.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if (getComputedStyle(document.querySelector(".fa")).fontFamily !== "FontAwesome") {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = '_FontAwesome/css/font-awesome.css';
+                document.head.insertBefore(link, document.head.firstChild)
+            }
+        </script>
+
+        
+
+        
+        <!-- Google Analytics Tag -->
+        <script>
+            var localAddrs = ["localhost", "127.0.0.1", ""];
+
+            // make sure we don't activate google analytics if the developer is
+            // inspecting the book locally...
+            if (localAddrs.indexOf(document.location.hostname) === -1) {
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+                ga('create', 'UA-110322332-1', 'auto');
+                ga('send', 'pageview');
+            }
+        </script>
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

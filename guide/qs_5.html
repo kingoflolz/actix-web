@@ -1,0 +1,655 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>URL Dispatch - Actix web</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Actix web framework guide">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+    </head>
+    <body class="light">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme;
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            document.querySelector('html').classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li class="affix"><a href="qs_1.html">Quickstart</a></li><li><a href="qs_2.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><a href="qs_3.html"><strong aria-hidden="true">2.</strong> Application</a></li><li><a href="qs_3_5.html"><strong aria-hidden="true">3.</strong> Server</a></li><li><a href="qs_4.html"><strong aria-hidden="true">4.</strong> Handler</a></li><li><a href="qs_4_5.html"><strong aria-hidden="true">5.</strong> Errors</a></li><li><a href="qs_5.html" class="active"><strong aria-hidden="true">6.</strong> URL Dispatch</a></li><li><a href="qs_7.html"><strong aria-hidden="true">7.</strong> Request &amp; Response</a></li><li><a href="qs_8.html"><strong aria-hidden="true">8.</strong> Testing</a></li><li><a href="qs_10.html"><strong aria-hidden="true">9.</strong> Middlewares</a></li><li><a href="qs_12.html"><strong aria-hidden="true">10.</strong> Static file handling</a></li><li><a href="qs_9.html"><strong aria-hidden="true">11.</strong> WebSockets</a></li><li><a href="qs_13.html"><strong aria-hidden="true">12.</strong> HTTP/2</a></li><li><a href="qs_14.html"><strong aria-hidden="true">13.</strong> Database integration</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                        </div>
+
+                        <h1 class="menu-title">Actix web</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="qs_5.html#url-dispatch" id="url-dispatch"><h1>URL Dispatch</h1></a>
+<p>URL dispatch provides a simple way to map URLs to <code>Handler</code> code using a simple pattern matching
+language. If one of the patterns matches the path information associated with a request,
+a particular handler object is invoked. A handler is a specific object that implements
+<code>Handler</code> trait, defined in your application, that receives the request and returns
+a response object. More information is available in <a href="../qs_4.html">handler section</a>.</p>
+<a class="header" href="qs_5.html#resource-configuration" id="resource-configuration"><h2>Resource configuration</h2></a>
+<p>Resource configuration is the act of adding a new resource to an application.
+A resource has a name, which acts as an identifier to be used for URL generation.
+The name also allows developers to add routes to existing resources.
+A resource also has a pattern, meant to match against the <em>PATH</em> portion of a <em>URL</em>,
+it does not match against <em>QUERY</em> portion (the portion following the scheme and
+port, e.g., <em>/foo/bar</em> in the <em>URL</em> <em>http://localhost:8080/foo/bar?q=value</em>).</p>
+<p>The <a href="../actix_web/struct.Application.html#method.resource">Application::resource</a> methods
+add a single resource to application routing table. This method accepts <em>path pattern</em>
+and resource configuration function.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# use actix_web::*;
+# use actix_web::httpcodes::*;
+#
+# fn index(req: HttpRequest) -&gt; HttpResponse {
+#   unimplemented!()
+# }
+#
+fn main() {
+    Application::new()
+        .resource(&quot;/prefix&quot;, |r| r.f(index))
+        .resource(&quot;/user/{name}&quot;,
+             |r| r.method(Method::GET).f(|req| HttpOk))
+        .finish();
+}
+</code></pre></pre>
+<p><em>Configuration function</em> has following type:</p>
+<pre><code class="language-rust ignore">   FnOnce(&amp;mut Resource&lt;_&gt;) -&gt; ()
+</code></pre>
+<p><em>Configuration function</em> can set name and register specific routes.
+If resource does not contain any route or does not have any matching routes it
+returns <em>NOT FOUND</em> http resources.</p>
+<a class="header" href="qs_5.html#configuring-a-route" id="configuring-a-route"><h2>Configuring a Route</h2></a>
+<p>Resource contains set of routes. Each route in turn has set of predicates and handler.
+New route could be created with <code>Resource::route()</code> method which returns reference
+to new <em>Route</em> instance. By default <em>route</em> does not contain any predicates, so matches
+all requests and default handler is <code>HttpNotFound</code>.</p>
+<p>Application routes incoming requests based on route criteria which is defined during
+resource registration and route registration. Resource matches all routes it contains in
+the order that the routes were registered via <code>Resource::route()</code>. <em>Route</em> can contain
+any number of <em>predicates</em> but only one handler.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# use actix_web::*;
+# use actix_web::httpcodes::*;
+
+fn main() {
+    Application::new()
+        .resource(&quot;/path&quot;, |resource|
+            resource.route()
+              .filter(pred::Get())
+              .filter(pred::Header(&quot;content-type&quot;, &quot;text/plain&quot;))
+              .f(|req| HttpOk)
+        )
+        .finish();
+}
+</code></pre></pre>
+<p>In this example <code>index</code> get called for <em>GET</em> request,
+if request contains <code>Content-Type</code> header and value of this header is <em>text/plain</em>
+and path equals to <code>/test</code>. Resource calls handle of the first matches route.
+If resource can not match any route &quot;NOT FOUND&quot; response get returned.</p>
+<p><a href="../actix_web/struct.Resource.html#method.route"><em>Resource::route()</em></a> method returns
+<a href="../actix_web/struct.Route.html"><em>Route</em></a> object. Route can be configured with
+builder-like pattern. Following configuration methods are available:</p>
+<ul>
+<li>
+<p><a href="../actix_web/struct.Route.html#method.filter"><em>Route::filter()</em></a> method registers new predicate,
+any number of predicates could be registered for each route.</p>
+</li>
+<li>
+<p><a href="../actix_web/struct.Route.html#method.f"><em>Route::f()</em></a> method registers handler function
+for this route. Only one handler could be registered. Usually handler registration
+is the last config operation. Handler function could be function or closure and has type
+<code>Fn(HttpRequest&lt;S&gt;) -&gt; R + 'static</code></p>
+</li>
+<li>
+<p><a href="../actix_web/struct.Route.html#method.h"><em>Route::h()</em></a> method registers handler object
+that implements <code>Handler</code> trait. This is similar to <code>f()</code> method, only one handler could
+be registered. Handler registration is the last config operation.</p>
+</li>
+<li>
+<p><a href="../actix_web/struct.Route.html#method.a"><em>Route::a()</em></a> method registers async handler
+function for this route. Only one handler could be registered. Handler registration
+is the last config operation. Handler function could be function or closure and has type
+<code>Fn(HttpRequest&lt;S&gt;) -&gt; Future&lt;Item = HttpResponse, Error = Error&gt; + 'static</code></p>
+</li>
+</ul>
+<a class="header" href="qs_5.html#route-matching" id="route-matching"><h2>Route matching</h2></a>
+<p>The main purpose of route configuration is to match (or not match) the request's <code>path</code>
+against a URL path pattern. <code>path</code> represents the path portion of the URL that was requested.</p>
+<p>The way that <em>actix</em> does this is very simple. When a request enters the system,
+for each resource configuration declaration present in the system, actix checks
+the request's path against the pattern declared. This checking happens in the order that
+the routes were declared via <code>Application::resource()</code> method. If resource could not be found,
+<em>default resource</em> get used as matched resource.</p>
+<p>When a route configuration is declared, it may contain route predicate arguments. All route
+predicates associated with a route declaration must be <code>true</code> for the route configuration to
+be used for a given request during a check. If any predicate in the set of route predicate
+arguments provided to a route configuration returns <code>false</code> during a check, that route is
+skipped and route matching continues through the ordered set of routes.</p>
+<p>If any route matches, the route matching process stops and the handler associated with
+route get invoked.</p>
+<p>If no route matches after all route patterns are exhausted, <em>NOT FOUND</em> response get returned.</p>
+<a class="header" href="qs_5.html#resource-pattern-syntax" id="resource-pattern-syntax"><h2>Resource pattern syntax</h2></a>
+<p>The syntax of the pattern matching language used by the actix in the pattern
+argument is straightforward.</p>
+<p>The pattern used in route configuration may start with a slash character. If the pattern
+does not start with a slash character, an implicit slash will be prepended
+to it at matching time. For example, the following patterns are equivalent:</p>
+<pre><code>{foo}/bar/baz
+</code></pre>
+<p>and:</p>
+<pre><code>/{foo}/bar/baz
+</code></pre>
+<p>A <em>variable part</em> (replacement marker) is specified in the form <em>{identifier}</em>,
+where this means &quot;accept any characters up to the next slash character and use this
+as the name in the <code>HttpRequest.match_info()</code> object&quot;.</p>
+<p>A replacement marker in a pattern matches the regular expression <code>[^{}/]+</code>.</p>
+<p>A match_info is the <code>Params</code> object representing the dynamic parts extracted from a
+<em>URL</em> based on the routing pattern. It is available as <em>request.match_info</em>. For example, the
+following pattern defines one literal segment (foo) and two replacement markers (baz, and bar):</p>
+<pre><code>foo/{baz}/{bar}
+</code></pre>
+<p>The above pattern will match these URLs, generating the following match information:</p>
+<pre><code>foo/1/2        -&gt; Params {'baz':'1', 'bar':'2'}
+foo/abc/def    -&gt; Params {'baz':'abc', 'bar':'def'}
+</code></pre>
+<p>It will not match the following patterns however:</p>
+<pre><code>foo/1/2/        -&gt; No match (trailing slash)
+bar/abc/def     -&gt; First segment literal mismatch
+</code></pre>
+<p>The match for a segment replacement marker in a segment will be done only up to
+the first non-alphanumeric character in the segment in the pattern. So, for instance,
+if this route pattern was used:</p>
+<pre><code>foo/{name}.html
+</code></pre>
+<p>The literal path <em>/foo/biz.html</em> will match the above route pattern, and the match result
+will be <code>Params{'name': 'biz'}</code>. However, the literal path <em>/foo/biz</em> will not match,
+because it does not contain a literal <em>.html</em> at the end of the segment represented
+by <em>{name}.html</em> (it only contains biz, not biz.html).</p>
+<p>To capture both segments, two replacement markers can be used:</p>
+<pre><code>foo/{name}.{ext}
+</code></pre>
+<p>The literal path <em>/foo/biz.html</em> will match the above route pattern, and the match
+result will be <em>Params{'name': 'biz', 'ext': 'html'}</em>. This occurs because there is a
+literal part of <em>.</em> (period) between the two replacement markers <em>{name}</em> and <em>{ext}</em>.</p>
+<p>Replacement markers can optionally specify a regular expression which will be used to decide
+whether a path segment should match the marker. To specify that a replacement marker should
+match only a specific set of characters as defined by a regular expression, you must use a
+slightly extended form of replacement marker syntax. Within braces, the replacement marker
+name must be followed by a colon, then directly thereafter, the regular expression. The default
+regular expression associated with a replacement marker <em><sup class="footnote-reference"><a href="qs_5.html#/">1</a></sup>+</em> matches one or more characters
+which are not a slash. For example, under the hood, the replacement marker <em>{foo}</em> can more
+verbosely be spelled as <em>{foo:<sup class="footnote-reference"><a href="qs_5.html#/">1</a></sup>+}</em>. You can change this to be an arbitrary regular expression
+to match an arbitrary sequence of characters, such as <em>{foo:\d+}</em> to match only digits.</p>
+<p>Segments must contain at least one character in order to match a segment replacement marker.
+For example, for the URL <em>/abc/</em>:</p>
+<ul>
+<li><em>/abc/{foo}</em> will not match.</li>
+<li><em>/{foo}/</em> will match.</li>
+</ul>
+<p>Note that path will be URL-unquoted and decoded into valid unicode string before
+matching pattern and values representing matched path segments will be URL-unquoted too.
+So for instance, the following pattern:</p>
+<pre><code>foo/{bar}
+</code></pre>
+<p>When matching the following URL:</p>
+<pre><code>http://example.com/foo/La%20Pe%C3%B1a
+</code></pre>
+<p>The matchdict will look like so (the value is URL-decoded):</p>
+<pre><code>Params{'bar': 'La Pe\xf1a'}
+</code></pre>
+<p>Literal strings in the path segment should represent the decoded value of the
+path provided to actix. You don't want to use a URL-encoded value in the pattern.
+For example, rather than this:</p>
+<pre><code>/Foo%20Bar/{baz}
+</code></pre>
+<p>You'll want to use something like this:</p>
+<pre><code>/Foo Bar/{baz}
+</code></pre>
+<p>It is possible to get &quot;tail match&quot;. For this purpose custom regex has to be used.</p>
+<pre><code>foo/{bar}/{tail:.*}
+</code></pre>
+<p>The above pattern will match these URLs, generating the following match information:</p>
+<pre><code>foo/1/2/           -&gt; Params{'bar':'1', 'tail': '2/'}
+foo/abc/def/a/b/c  -&gt; Params{'bar':u'abc', 'tail': 'def/a/b/c'}
+</code></pre>
+<a class="header" href="qs_5.html#match-information" id="match-information"><h2>Match information</h2></a>
+<p>All values representing matched path segments are available in
+<a href="../actix_web/struct.HttpRequest.html#method.match_info"><code>HttpRequest::match_info</code></a>.
+Specific value can be received with
+<a href="../actix_web/dev/struct.Params.html#method.get"><code>Params::get()</code></a> method.</p>
+<p>Any matched parameter can be deserialized into specific type if this type
+implements <code>FromParam</code> trait. For example most of standard integer types
+implements <code>FromParam</code> trait. i.e.:</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+use actix_web::*;
+
+fn index(req: HttpRequest) -&gt; Result&lt;String&gt; {
+    let v1: u8 = req.match_info().query(&quot;v1&quot;)?;
+    let v2: u8 = req.match_info().query(&quot;v2&quot;)?;
+    Ok(format!(&quot;Values {} {}&quot;, v1, v2))
+}
+
+fn main() {
+    Application::new()
+        .resource(r&quot;/a/{v1}/{v2}/&quot;, |r| r.f(index))
+        .finish();
+}
+</code></pre></pre>
+<p>For this example for path '/a/1/2/', values v1 and v2 will resolve to &quot;1&quot; and &quot;2&quot;.</p>
+<p>It is possible to create a <code>PathBuf</code> from a tail path parameter. The returned <code>PathBuf</code> is
+percent-decoded. If a segment is equal to &quot;..&quot;, the previous segment (if
+any) is skipped.</p>
+<p>For security purposes, if a segment meets any of the following conditions,
+an <code>Err</code> is returned indicating the condition met:</p>
+<ul>
+<li>Decoded segment starts with any of: <code>.</code> (except <code>..</code>), <code>*</code></li>
+<li>Decoded segment ends with any of: <code>:</code>, <code>&gt;</code>, <code>&lt;</code></li>
+<li>Decoded segment contains any of: <code>/</code></li>
+<li>On Windows, decoded segment contains any of: ''</li>
+<li>Percent-encoding results in invalid UTF8.</li>
+</ul>
+<p>As a result of these conditions, a <code>PathBuf</code> parsed from request path parameter is
+safe to interpolate within, or use as a suffix of, a path without additional checks.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+use actix_web::*;
+use std::path::PathBuf;
+
+fn index(req: HttpRequest) -&gt; Result&lt;String&gt; {
+    let path: PathBuf = req.match_info().query(&quot;tail&quot;)?;
+    Ok(format!(&quot;Path {:?}&quot;, path))
+}
+
+fn main() {
+    Application::new()
+        .resource(r&quot;/a/{tail:.*}&quot;, |r| r.method(Method::GET).f(index))
+        .finish();
+}
+</code></pre></pre>
+<p>List of <code>FromParam</code> implementation could be found in
+<a href="../actix_web/dev/trait.FromParam.html#foreign-impls">api docs</a></p>
+<a class="header" href="qs_5.html#generating-resource-urls" id="generating-resource-urls"><h2>Generating resource URLs</h2></a>
+<p>Use the <a href="../actix_web/struct.HttpRequest.html#method.url_for">HttpRequest.url_for()</a>
+method to generate URLs based on resource patterns. For example, if you've configured a
+resource with the name &quot;foo&quot; and the pattern &quot;{a}/{b}/{c}&quot;, you might do this.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# use actix_web::*;
+# use actix_web::httpcodes::*;
+#
+fn index(req: HttpRequest) -&gt; HttpResponse {
+    let url = req.url_for(&quot;foo&quot;, &amp;[&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]); // &lt;- generate url for &quot;foo&quot; resource
+    HttpOk.into()
+}
+
+fn main() {
+    let app = Application::new()
+        .resource(&quot;/test/{a}/{b}/{c}&quot;, |r| {
+             r.name(&quot;foo&quot;);  // &lt;- set resource name, then it could be used in `url_for`
+             r.method(Method::GET).f(|_| httpcodes::HttpOk);
+        })
+        .finish();
+}
+</code></pre></pre>
+<p>This would return something like the string <em>http://example.com/test/1/2/3</em> (at least if
+the current protocol and hostname implied http://example.com).
+<code>url_for()</code> method return <a href="https://docs.rs/url/1.6.0/url/struct.Url.html"><em>Url object</em></a> so you
+can modify this url (add query parameters, anchor, etc).
+<code>url_for()</code> could be called only for <em>named</em> resources otherwise error get returned.</p>
+<a class="header" href="qs_5.html#external-resources" id="external-resources"><h2>External resources</h2></a>
+<p>Resources that are valid URLs, could be registered as external resources. They are useful
+for URL generation purposes only and are never considered for matching at request time.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+use actix_web::*;
+
+fn index(mut req: HttpRequest) -&gt; Result&lt;HttpResponse&gt; {
+    let url = req.url_for(&quot;youtube&quot;, &amp;[&quot;oHg5SJYRHA0&quot;])?;
+    assert_eq!(url.as_str(), &quot;https://youtube.com/watch/oHg5SJYRHA0&quot;);
+    Ok(httpcodes::HttpOk.into())
+}
+
+fn main() {
+    let app = Application::new()
+        .resource(&quot;/index.html&quot;, |r| r.f(index))
+        .external_resource(&quot;youtube&quot;, &quot;https://youtube.com/watch/{video_id}&quot;)
+        .finish();
+}
+</code></pre></pre>
+<a class="header" href="qs_5.html#path-normalization-and-redirecting-to-slash-appended-routes" id="path-normalization-and-redirecting-to-slash-appended-routes"><h2>Path normalization and redirecting to slash-appended routes</h2></a>
+<p>By normalizing it means:</p>
+<ul>
+<li>Add a trailing slash to the path.</li>
+<li>Double slashes are replaced by one.</li>
+</ul>
+<p>The handler returns as soon as it finds a path that resolves
+correctly. The order if all enable is 1) merge, 3) both merge and append
+and 3) append. If the path resolves with
+at least one of those conditions, it will redirect to the new path.</p>
+<p>If <em>append</em> is <em>true</em> append slash when needed. If a resource is
+defined with trailing slash and the request comes without it, it will
+append it automatically.</p>
+<p>If <em>merge</em> is <em>true</em>, merge multiple consecutive slashes in the path into one.</p>
+<p>This handler designed to be use as a handler for application's <em>default resource</em>.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# #[macro_use] extern crate serde_derive;
+# use actix_web::*;
+#
+# fn index(req: HttpRequest) -&gt; httpcodes::StaticResponse {
+#    httpcodes::HttpOk
+# }
+fn main() {
+    let app = Application::new()
+        .resource(&quot;/resource/&quot;, |r| r.f(index))
+        .default_resource(|r| r.h(NormalizePath::default()))
+        .finish();
+}
+</code></pre></pre>
+<p>In this example <code>/resource</code>, <code>//resource///</code> will be redirected to <code>/resource/</code> url.</p>
+<p>In this example path normalization handler get registered for all method,
+but you should not rely on this mechanism to redirect <em>POST</em> requests. The redirect of the
+slash-appending <em>Not Found</em> will turn a <em>POST</em> request into a GET, losing any
+<em>POST</em> data in the original request.</p>
+<p>It is possible to register path normalization only for <em>GET</em> requests only</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# #[macro_use] extern crate serde_derive;
+# use actix_web::*;
+#
+# fn index(req: HttpRequest) -&gt; httpcodes::StaticResponse {
+#    httpcodes::HttpOk
+# }
+fn main() {
+    let app = Application::new()
+        .resource(&quot;/resource/&quot;, |r| r.f(index))
+        .default_resource(|r| r.method(Method::GET).h(NormalizePath::default()))
+        .finish();
+}
+</code></pre></pre>
+<a class="header" href="qs_5.html#using-a-application-prefix-to-compose-applications" id="using-a-application-prefix-to-compose-applications"><h2>Using a Application Prefix to Compose Applications</h2></a>
+<p>The <code>Application::prefix()</code>&quot; method allows to set specific application prefix.
+This prefix represents a resource prefix that will be prepended to all resource patterns added
+by the resource configuration. This can be used to help mount a set of routes at a different
+location than the included callable's author intended while still maintaining the same
+resource names.</p>
+<p>For example:</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# use actix_web::*;
+#
+fn show_users(req: HttpRequest) -&gt; HttpResponse {
+   unimplemented!()
+}
+
+fn main() {
+    Application::new()
+        .prefix(&quot;/users&quot;)
+        .resource(&quot;/show&quot;, |r| r.f(show_users))
+        .finish();
+}
+</code></pre></pre>
+<p>In the above example, the <em>show_users</em> route will have an effective route pattern of
+<em>/users/show</em> instead of <em>/show</em> because the application's prefix argument will be prepended
+to the pattern. The route will then only match if the URL path is <em>/users/show</em>,
+and when the <code>HttpRequest.url_for()</code> function is called with the route name show_users,
+it will generate a URL with that same path.</p>
+<a class="header" href="qs_5.html#custom-route-predicates" id="custom-route-predicates"><h2>Custom route predicates</h2></a>
+<p>You can think of predicate as simple function that accept <em>request</em> object reference
+and returns <em>true</em> or <em>false</em>. Formally predicate is any object that implements
+<a href="../actix_web/pred/trait.Predicate.html"><code>Predicate</code></a> trait. Actix provides
+several predicates, you can check <a href="../actix_web/pred/index.html#functions">functions section</a>
+of api docs.</p>
+<p>Here is simple predicates that check that request contains specific <em>header</em>:</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# extern crate http;
+# use actix_web::*;
+# use actix_web::httpcodes::*;
+use http::header::CONTENT_TYPE;
+use actix_web::pred::Predicate;
+
+struct ContentTypeHeader;
+
+impl&lt;S: 'static&gt; Predicate&lt;S&gt; for ContentTypeHeader {
+
+    fn check(&amp;self, req: &amp;mut HttpRequest&lt;S&gt;) -&gt; bool {
+       req.headers().contains_key(CONTENT_TYPE)
+    }
+}
+
+fn main() {
+    Application::new()
+        .resource(&quot;/index.html&quot;, |r|
+           r.route()
+              .filter(ContentTypeHeader)
+              .h(HttpOk));
+}
+</code></pre></pre>
+<p>In this example <em>index</em> handler will be called only if request contains <em>CONTENT-TYPE</em> header.</p>
+<p>Predicates can have access to application's state via <code>HttpRequest::state()</code> method.
+Also predicates can store extra information in
+<a href="../actix_web/struct.HttpRequest.html#method.extensions">requests`s extensions</a>.</p>
+<a class="header" href="qs_5.html#modifying-predicate-values" id="modifying-predicate-values"><h3>Modifying predicate values</h3></a>
+<p>You can invert the meaning of any predicate value by wrapping it in a <code>Not</code> predicate.
+For example if you want to return &quot;METHOD NOT ALLOWED&quot; response for all methods
+except &quot;GET&quot;:</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# extern crate http;
+# use actix_web::*;
+# use actix_web::httpcodes::*;
+use actix_web::pred;
+
+fn main() {
+    Application::new()
+        .resource(&quot;/index.html&quot;, |r|
+           r.route()
+              .filter(pred::Not(pred::Get()))
+              .f(|req| HttpMethodNotAllowed))
+        .finish();
+}
+</code></pre></pre>
+<p><code>Any</code> predicate accept list of predicates and matches if any of the supplied
+predicates match. i.e:</p>
+<pre><code class="language-rust ignore">    pred::Any(pred::Get()).or(pred::Post())
+</code></pre>
+<p><code>All</code> predicate accept list of predicates and matches if all of the supplied
+predicates match. i.e:</p>
+<pre><code class="language-rust ignore">    pred::All(pred::Get()).and(pred::Header(&quot;content-type&quot;, &quot;plain/text&quot;))
+</code></pre>
+<a class="header" href="qs_5.html#changing-the-default-not-found-response" id="changing-the-default-not-found-response"><h2>Changing the default Not Found response</h2></a>
+<p>If path pattern can not be found in routing table or resource can not find matching
+route, default resource is used. Default response is <em>NOT FOUND</em> response.
+It is possible to override <em>NOT FOUND</em> response with <code>Application::default_resource()</code> method.
+This method accepts <em>configuration function</em> same as normal resource configuration
+with <code>Application::resource()</code> method.</p>
+<pre><pre class="playpen"><code class="language-rust"># extern crate actix_web;
+# extern crate http;
+use actix_web::*;
+use actix_web::httpcodes::*;
+
+fn main() {
+    Application::new()
+        .default_resource(|r| {
+              r.method(Method::GET).f(|req| HttpNotFound);
+              r.route().filter(pred::Not(pred::Get())).f(|req| HttpMethodNotAllowed);
+         })
+#        .finish();
+}
+</code></pre></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="qs_4_5.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="qs_7.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="qs_4_5.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="qs_7.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if (getComputedStyle(document.querySelector(".fa")).fontFamily !== "FontAwesome") {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = '_FontAwesome/css/font-awesome.css';
+                document.head.insertBefore(link, document.head.firstChild)
+            }
+        </script>
+
+        
+
+        
+        <!-- Google Analytics Tag -->
+        <script>
+            var localAddrs = ["localhost", "127.0.0.1", ""];
+
+            // make sure we don't activate google analytics if the developer is
+            // inspecting the book locally...
+            if (localAddrs.indexOf(document.location.hostname) === -1) {
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+                ga('create', 'UA-110322332-1', 'auto');
+                ga('send', 'pageview');
+            }
+        </script>
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>
