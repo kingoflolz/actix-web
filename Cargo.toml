@@ -41,7 +41,7 @@ session = ["cookie/secure"]
 brotli = ["brotli2"]
 
 [dependencies]
-actix = "^0.5.5"
+actix = {git="https://github.com/kingoflolz/actix", branch="mocking"}
 
 base64 = "0.9"
 bitflags = "1.0"
